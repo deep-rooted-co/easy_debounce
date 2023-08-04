@@ -5,7 +5,6 @@ import 'package:test/test.dart';
 import 'package:easy_debounce/easy_throttle.dart';
 
 void main() {
-
   tearDown(() async {
     final Completer completer = new Completer();
     late Timer tearDownTimer;
@@ -25,6 +24,7 @@ void main() {
 
     var onExecute = expectAsync1((String value) {
       expect(value, id);
+      return Future.value();
     }, count: 1);
 
     EasyThrottle.throttle(id, Duration(milliseconds: 100), () => onExecute(id));
@@ -40,6 +40,7 @@ void main() {
       Duration startStopDiff = DateTime.now().difference(start);
       int actualExpectedDiffMs = startStopDiff.inMilliseconds.abs();
       expect(actualExpectedDiffMs < 10, true); // 10 ms is reasonable
+      return Future.value();
     }, count: 1);
 
     Duration duration = Duration(milliseconds: 100);
@@ -54,6 +55,7 @@ void main() {
       int actualExpectedDiffMs = startStopDiff.inMilliseconds.abs();
       expect(actualExpectedDiffMs < 10 || actualExpectedDiffMs > 500, true);
       expect(index == 0 || index == 4, true);
+      return Future.value();
     }, count: 2);
 
     EasyThrottle.throttle('has-finished', Duration(milliseconds: 500), () => onExecute(0));
@@ -64,7 +66,9 @@ void main() {
   });
 
   test('multiple throttles can be run at the same time and will each invoke onExecute', () async {
-    var onExecute = expectAsync0(() {}, count: 3);
+    var onExecute = expectAsync0(() {
+      return Future.value();
+    }, count: 3);
 
     EasyThrottle.throttle('multiple-1', Duration(milliseconds: 300), () => onExecute());
     EasyThrottle.throttle('multiple-2', Duration(milliseconds: 300), () => onExecute());
@@ -74,6 +78,7 @@ void main() {
   test('the first call to throttle invokes onExecute', () async {
     var onExecute = expectAsync1((int i) {
       expect(i, 1);
+      return Future.value();
     }, count: 1);
 
     EasyThrottle.throttle('first-call', Duration(milliseconds: 300), () => onExecute(1));
@@ -88,12 +93,14 @@ void main() {
 
     var onExecute = expectAsync1((int i) {
       expect(i, 1);
+      return Future.value();
     }, count: 1);
 
     var onAfter = expectAsync0(() {
       Duration startStopDiff = DateTime.now().difference(start);
       int actualExpectedDiffMs = (startStopDiff.inMilliseconds.abs() - 1000).abs();
       expect(actualExpectedDiffMs < 100, true); // 100 ms is reasonable
+      return Future.value();
     }, count: 1);
 
     EasyThrottle.throttle('first-call', Duration(milliseconds: 1000), () => onExecute(1), onAfter: onAfter);
@@ -102,12 +109,16 @@ void main() {
   });
 
   test('zero-duration is a valid duration', () async {
-    var onExecute = expectAsync0(() {}, count: 1);
+    var onExecute = expectAsync0(() {
+      return Future.value();
+    }, count: 1);
     EasyThrottle.throttle('zero-duration', Duration.zero, () => onExecute());
   });
 
   test('count() returns the number of active throttles', () async {
-    var onExecute = expectAsync0(() {}, count: 3);
+    var onExecute = expectAsync0(() {
+      return Future.value();
+    }, count: 3);
     expect(EasyThrottle.count(), 0);
     EasyThrottle.throttle('count-1', Duration(milliseconds: 500), () => onExecute());
     expect(EasyThrottle.count(), 1);
@@ -119,7 +130,9 @@ void main() {
   });
 
   test('cancel() cancels a throttle', () async {
-    var onExecute = expectAsync0(() {}, count: 3);
+    var onExecute = expectAsync0(() {
+      return Future.value();
+    }, count: 3);
 
     expect(EasyThrottle.count(), 0);
 
@@ -137,7 +150,9 @@ void main() {
   });
 
   test('cancel() decreases the number of active throttles', () async {
-    var onExecute = expectAsync0(() {}, count: 3);
+    var onExecute = expectAsync0(() {
+      return Future.value();
+    }, count: 3);
 
     EasyThrottle.throttle('cancel-count-1', Duration(milliseconds: 500), () => onExecute());
     EasyThrottle.throttle('cancel-count-2', Duration(milliseconds: 500), () => onExecute());
@@ -152,7 +167,9 @@ void main() {
   });
 
   test('cancelAll() cancels and removes all timers', () async {
-    var onExecute = expectAsync0(() {}, count: 3);
+    var onExecute = expectAsync0(() {
+      return Future.value();
+    }, count: 3);
 
     EasyThrottle.throttle('cancel-all-1', Duration(milliseconds: 500), () => onExecute());
     EasyThrottle.throttle('cancel-all-2', Duration(milliseconds: 500), () => onExecute());

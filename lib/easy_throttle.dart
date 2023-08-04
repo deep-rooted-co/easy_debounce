@@ -2,7 +2,7 @@ library easy_debounce;
 
 import 'dart:async';
 
-typedef EasyThrottleCallback = void Function();
+typedef EasyThrottleCallback<T> = Future<T> Function();
 
 class _EasyThrottleOperation {
   EasyThrottleCallback callback;
@@ -28,15 +28,15 @@ class EasyThrottle {
   /// [duration] is the amount of time subsequent attempts will be ignored.
   ///
   /// Returns whether the operation was throttled
-  static bool throttle(
+  static Future<T?> throttle<T>(
     String tag,
     Duration duration,
-    EasyThrottleCallback onExecute, {
-    EasyThrottleCallback? onAfter,
+    EasyThrottleCallback<T> onExecute, {
+    EasyThrottleCallback<T>? onAfter,
   }) {
     var throttled = _operations.containsKey(tag);
     if (throttled) {
-      return true;
+      return Future.value(null);
     }
 
     _operations[tag] = _EasyThrottleOperation(
@@ -50,9 +50,7 @@ class EasyThrottle {
       onAfter: onAfter,
     );
 
-    onExecute();
-
-    return false;
+    return onExecute();
   }
 
   /// Cancels any active throttle with the given [tag].
